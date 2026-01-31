@@ -28,6 +28,5 @@
     <ProjectReference Include="..\HotelBooking.Infrastructure\HotelBooking.Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="Controllers\HomeController.cs" />
   </ItemGroup>
 </Project>

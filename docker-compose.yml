@@ -1,0 +1,35 @@
+services:
+  webapi:
+    build:
+      context: .
+      dockerfile: Dockerfile.webapi
+    ports:
+      - "5001:5001"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTPS_PORTS=""
+      - Logging__LogLevel__Default=Information
+      - Logging__LogLevel__Microsoft.AspNetCore=Information
+    networks:
+      - hotel-network
+
+  mvc:
+    build:
+      context: .
+      dockerfile: Dockerfile.mvc
+    ports:
+      - "5000:5000"
+    environment:
+      - ApiUrl=http://webapi:5001
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTPS_PORTS=""
+      - Logging__LogLevel__Default=Information
+      - Logging__LogLevel__Microsoft.AspNetCore=Information
+    depends_on:
+      - webapi
+    networks:
+      - hotel-network
+
+networks:
+  hotel-network:
+    driver: bridge
