@@ -20,6 +20,14 @@ Feature: Create Booking
   # Happy path: booking created successfully
   # -----------------------------------------------------------------------
 
+  # BB-05
+  Scenario: Booking is created on a single available day
+    Given a customer wants to book from "Today+5" to "Today+5"
+    When the booking is submitted
+    Then the booking should be created successfully
+    And the booking should be marked as active
+
+  # BB-07
   Scenario: Booking is created when a room is available
     Given a customer wants to book from "Today+2" to "Today+8"
     When the booking is submitted
@@ -27,18 +35,14 @@ Feature: Create Booking
     And the booking should be marked as active
     And the booking should be assigned a valid room
 
-  Scenario: Booking is created on a single available day
-    Given a customer wants to book from "Today+5" to "Today+5"
-    When the booking is submitted
-    Then the booking should be created successfully
-    And the booking should be marked as active
-
+  # BB-09
   Scenario: Booking is created just before the fully occupied period
     Given a customer wants to book from "Today+2" to "Today+9"
     When the booking is submitted
     Then the booking should be created successfully
     And the booking should be marked as active
 
+  # BB-10
   Scenario: Booking is created just after the fully occupied period
     Given a customer wants to book from "Today+21" to "Today+25"
     When the booking is submitted
@@ -49,6 +53,15 @@ Feature: Create Booking
   # No-room path: booking rejected
   # -----------------------------------------------------------------------
 
+  # BB-04
+   Scenario: Booking is rejected when start date is today
+    Given a customer wants to book from "Today" to "Today+1"
+    When the booking is submitted
+    Then the booking should not be created
+    And the booking should not be marked as active
+    And no room should be assigned to the booking
+
+  # BB-08
   Scenario: Booking is rejected when all rooms are occupied
     Given a customer wants to book from "Today+10" to "Today+11"
     When the booking is submitted
@@ -56,25 +69,35 @@ Feature: Create Booking
     And the booking should not be marked as active
     And no room should be assigned to the booking
 
+  # BB-11
   Scenario: Booking is rejected when start date is inside the fully occupied period
     Given a customer wants to book from "Today+15" to "Today+25"
     When the booking is submitted
     Then the booking should not be created
 
+  # BB-12
   Scenario: Booking is rejected when the range encompasses the fully occupied period
     Given a customer wants to book from "Today+8" to "Today+25"
-    When the booking is submitted
-    Then the booking should not be created
-
-  Scenario: Booking is rejected when the range is entirely inside the fully occupied period
-    Given a customer wants to book from "Today+12" to "Today+18"
     When the booking is submitted
     Then the booking should not be created
 
   # -----------------------------------------------------------------------
   # Input validation: invalid dates throw an exception
   # -----------------------------------------------------------------------
+  
+  # BB-01
+  Scenario: Booking throws exception when start date is missing
+    Given a customer has accidentally entered "NULL" by leaving out start date
+    When the booking is submitted
+    Then an ArgumentException is thrown
 
+  # BB-02
+  Scenario: Booking throws exception when end date is missing
+    Given a customer has accidentally entered "NULL" by leaving out end date
+    When the booking is submitted
+    Then an ArgumentException is thrown
+    
+  # BB-03
   Scenario Outline: Booking throws exception when start date is not in the future
     Given a customer wants to book from "<StartDate>" to "Today+2"
     When the booking is submitted
@@ -86,6 +109,7 @@ Feature: Create Booking
       | Today-1   |
       | Today     |
 
+  # BB-06
   Scenario Outline: Booking throws exception when start date is after end date
     Given a customer wants to book from "<StartDate>" to "<EndDate>"
     When the booking is submitted
@@ -96,20 +120,11 @@ Feature: Create Booking
       | Today+10  | Today+1  |
       | Today+5   | Today+4  |
 
-  Scenario Outline: Booking throws exception when end date is before start date
-    Given a customer wants to book from "Today+1" to "<EndDate>"
-    When the booking is submitted
-    Then an ArgumentException should be thrown
-
-    Examples:
-      | EndDate   |
-      | Today-1   |
-      | Today     |
-
   # -----------------------------------------------------------------------
   # No rooms in the hotel
   # -----------------------------------------------------------------------
 
+  # BB-13
   Scenario: Booking is rejected when hotel has no rooms
     Given the hotel has no rooms
     And a customer wants to book from "Today+1" to "Today+2"
