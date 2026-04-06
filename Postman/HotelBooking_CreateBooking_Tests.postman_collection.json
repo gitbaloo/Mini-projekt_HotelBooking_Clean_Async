@@ -1,0 +1,569 @@
+{
+	"info": {
+		"_postman_id": "f1a2b3c4-d5e6-7890-abcd-ef1234567890",
+		"name": "HotelBooking_CreateBooking_Tests",
+		"description": "Automated API tests for the Create Booking feature. Run with: docker-compose up, then use newman or Postman to execute.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5001",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Setup",
+			"item": [
+				{
+					"name": "Verify Rooms Exist",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response is JSON', function () {",
+									"    pm.response.to.be.json;",
+									"});",
+									"",
+									"pm.test('At least 2 rooms exist (seeded by DbInitializer)', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.length).to.be.at.least(2);",
+									"    // Store room count for later use",
+									"    pm.collectionVariables.set('roomCount', jsonData.length);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/rooms",
+							"host": ["{{baseUrl}}"],
+							"path": ["rooms"]
+						}
+					}
+				},
+				{
+					"name": "Verify Customers Exist",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('At least 1 customer exists (seeded)', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.length).to.be.at.least(1);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/customers",
+							"host": ["{{baseUrl}}"],
+							"path": ["customers"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Create Booking Tests",
+			"item": [
+				{
+					"name": "TC1 - Valid booking (room available) returns 201",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var startDate = new Date();",
+									"startDate.setDate(startDate.getDate() + 30);",
+									"var endDate = new Date();",
+									"endDate.setDate(endDate.getDate() + 35);",
+									"",
+									"pm.variables.set('startDate', startDate.toISOString().split('T')[0]);",
+									"pm.variables.set('endDate', endDate.toISOString().split('T')[0]);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 Created - booking successful', function () {",
+									"    pm.response.to.have.status(201);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"startDate\": \"{{startDate}}\",\n  \"endDate\": \"{{endDate}}\",\n  \"customerId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/Bookings",
+							"host": ["{{baseUrl}}"],
+							"path": ["Bookings"]
+						}
+					}
+				},
+				{
+					"name": "TC2 - Book remaining rooms for same period",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var startDate = new Date();",
+									"startDate.setDate(startDate.getDate() + 30);",
+									"var endDate = new Date();",
+									"endDate.setDate(endDate.getDate() + 35);",
+									"",
+									"pm.variables.set('startDate', startDate.toISOString().split('T')[0]);",
+									"pm.variables.set('endDate', endDate.toISOString().split('T')[0]);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 or 409', function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([201, 409]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"startDate\": \"{{startDate}}\",\n  \"endDate\": \"{{endDate}}\",\n  \"customerId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/Bookings",
+							"host": ["{{baseUrl}}"],
+							"path": ["Bookings"]
+						}
+					}
+				},
+				{
+					"name": "TC2b - Book remaining rooms for same period (2)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var startDate = new Date();",
+									"startDate.setDate(startDate.getDate() + 30);",
+									"var endDate = new Date();",
+									"endDate.setDate(endDate.getDate() + 35);",
+									"",
+									"pm.variables.set('startDate', startDate.toISOString().split('T')[0]);",
+									"pm.variables.set('endDate', endDate.toISOString().split('T')[0]);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 or 409', function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([201, 409]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"startDate\": \"{{startDate}}\",\n  \"endDate\": \"{{endDate}}\",\n  \"customerId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/Bookings",
+							"host": ["{{baseUrl}}"],
+							"path": ["Bookings"]
+						}
+					}
+				},
+				{
+					"name": "TC3 - No rooms available returns 409 Conflict",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var startDate = new Date();",
+									"startDate.setDate(startDate.getDate() + 30);",
+									"var endDate = new Date();",
+									"endDate.setDate(endDate.getDate() + 35);",
+									"",
+									"pm.variables.set('startDate', startDate.toISOString().split('T')[0]);",
+									"pm.variables.set('endDate', endDate.toISOString().split('T')[0]);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 409 Conflict - no rooms available', function () {",
+									"    pm.response.to.have.status(409);",
+									"});",
+									"",
+									"pm.test('Response mentions rooms being occupied', function () {",
+									"    var body = pm.response.text();",
+									"    pm.expect(body.toLowerCase()).to.include('occupied');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"startDate\": \"{{startDate}}\",\n  \"endDate\": \"{{endDate}}\",\n  \"customerId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/Bookings",
+							"host": ["{{baseUrl}}"],
+							"path": ["Bookings"]
+						}
+					}
+				},
+				{
+					"name": "TC4 - Start date in the past returns error",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var startDate = new Date();",
+									"startDate.setDate(startDate.getDate() - 5);",
+									"var endDate = new Date();",
+									"endDate.setDate(endDate.getDate() + 5);",
+									"",
+									"pm.variables.set('startDate', startDate.toISOString().split('T')[0]);",
+									"pm.variables.set('endDate', endDate.toISOString().split('T')[0]);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code indicates error for past start date', function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([400, 500]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"startDate\": \"{{startDate}}\",\n  \"endDate\": \"{{endDate}}\",\n  \"customerId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/Bookings",
+							"host": ["{{baseUrl}}"],
+							"path": ["Bookings"]
+						}
+					}
+				},
+				{
+					"name": "TC5 - Start date equals today returns error",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var startDate = new Date();",
+									"var endDate = new Date();",
+									"endDate.setDate(endDate.getDate() + 5);",
+									"",
+									"pm.variables.set('startDate', startDate.toISOString().split('T')[0]);",
+									"pm.variables.set('endDate', endDate.toISOString().split('T')[0]);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code indicates error for today as start date', function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([400, 500]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"startDate\": \"{{startDate}}\",\n  \"endDate\": \"{{endDate}}\",\n  \"customerId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/Bookings",
+							"host": ["{{baseUrl}}"],
+							"path": ["Bookings"]
+						}
+					}
+				},
+				{
+					"name": "TC6 - Start date after end date returns error",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var startDate = new Date();",
+									"startDate.setDate(startDate.getDate() + 10);",
+									"var endDate = new Date();",
+									"endDate.setDate(endDate.getDate() + 5);",
+									"",
+									"pm.variables.set('startDate', startDate.toISOString().split('T')[0]);",
+									"pm.variables.set('endDate', endDate.toISOString().split('T')[0]);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code indicates error for start > end date', function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([400, 500]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"startDate\": \"{{startDate}}\",\n  \"endDate\": \"{{endDate}}\",\n  \"customerId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/Bookings",
+							"host": ["{{baseUrl}}"],
+							"path": ["Bookings"]
+						}
+					}
+				},
+				{
+					"name": "TC7 - Null body returns 400 Bad Request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 400 Bad Request for empty body', function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([400, 415]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/Bookings",
+							"host": ["{{baseUrl}}"],
+							"path": ["Bookings"]
+						}
+					}
+				},
+				{
+					"name": "TC8 - Valid single-day booking returns 201",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var startDate = new Date();",
+									"startDate.setDate(startDate.getDate() + 60);",
+									"",
+									"pm.variables.set('startDate', startDate.toISOString().split('T')[0]);",
+									"pm.variables.set('endDate', startDate.toISOString().split('T')[0]);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 Created for single-day booking', function () {",
+									"    pm.response.to.have.status(201);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"startDate\": \"{{startDate}}\",\n  \"endDate\": \"{{endDate}}\",\n  \"customerId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/Bookings",
+							"host": ["{{baseUrl}}"],
+							"path": ["Bookings"]
+						}
+					}
+				},
+				{
+					"name": "TC9 - Verify bookings are persisted (GET all)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response is JSON array', function () {",
+									"    pm.response.to.be.json;",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('At least one booking exists', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.length).to.be.at.least(1);",
+									"});",
+									"",
+									"pm.test('Bookings have required fields', function () {",
+									"    var jsonData = pm.response.json();",
+									"    jsonData.forEach(function(booking) {",
+									"        pm.expect(booking).to.have.property('startDate');",
+									"        pm.expect(booking).to.have.property('endDate');",
+									"        pm.expect(booking).to.have.property('customerId');",
+									"        pm.expect(booking).to.have.property('roomId');",
+									"        pm.expect(booking).to.have.property('isActive');",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/Bookings",
+							"host": ["{{baseUrl}}"],
+							"path": ["Bookings"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
+
