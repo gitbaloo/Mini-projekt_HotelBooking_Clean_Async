@@ -94,10 +94,16 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
+									"var runOffsetDays = pm.collectionVariables.get('runOffsetDays');",
+									"if (!runOffsetDays) {",
+									"    runOffsetDays = 120 + Math.floor(Math.random() * 2000);",
+									"    pm.collectionVariables.set('runOffsetDays', runOffsetDays);",
+									"}",
+									"",
 									"var startDate = new Date();",
-									"startDate.setDate(startDate.getDate() + 30);",
-									"var endDate = new Date();",
-									"endDate.setDate(endDate.getDate() + 35);",
+									"startDate.setDate(startDate.getDate() + Number(runOffsetDays));",
+									"var endDate = new Date(startDate);",
+									"endDate.setDate(endDate.getDate() + 5);",
 									"",
 									"pm.variables.set('startDate', startDate.toISOString().split('T')[0]);",
 									"pm.variables.set('endDate', endDate.toISOString().split('T')[0]);"
@@ -143,10 +149,16 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
+									"var runOffsetDays = pm.collectionVariables.get('runOffsetDays');",
+									"if (!runOffsetDays) {",
+									"    runOffsetDays = 120 + Math.floor(Math.random() * 2000);",
+									"    pm.collectionVariables.set('runOffsetDays', runOffsetDays);",
+									"}",
+									"",
 									"var startDate = new Date();",
-									"startDate.setDate(startDate.getDate() + 30);",
-									"var endDate = new Date();",
-									"endDate.setDate(endDate.getDate() + 35);",
+									"startDate.setDate(startDate.getDate() + Number(runOffsetDays));",
+									"var endDate = new Date(startDate);",
+									"endDate.setDate(endDate.getDate() + 5);",
 									"",
 									"pm.variables.set('startDate', startDate.toISOString().split('T')[0]);",
 									"pm.variables.set('endDate', endDate.toISOString().split('T')[0]);"
@@ -192,10 +204,16 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
+									"var runOffsetDays = pm.collectionVariables.get('runOffsetDays');",
+									"if (!runOffsetDays) {",
+									"    runOffsetDays = 120 + Math.floor(Math.random() * 2000);",
+									"    pm.collectionVariables.set('runOffsetDays', runOffsetDays);",
+									"}",
+									"",
 									"var startDate = new Date();",
-									"startDate.setDate(startDate.getDate() + 30);",
-									"var endDate = new Date();",
-									"endDate.setDate(endDate.getDate() + 35);",
+									"startDate.setDate(startDate.getDate() + Number(runOffsetDays));",
+									"var endDate = new Date(startDate);",
+									"endDate.setDate(endDate.getDate() + 5);",
 									"",
 									"pm.variables.set('startDate', startDate.toISOString().split('T')[0]);",
 									"pm.variables.set('endDate', endDate.toISOString().split('T')[0]);"
@@ -241,10 +259,16 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
+									"var runOffsetDays = pm.collectionVariables.get('runOffsetDays');",
+									"if (!runOffsetDays) {",
+									"    runOffsetDays = 120 + Math.floor(Math.random() * 2000);",
+									"    pm.collectionVariables.set('runOffsetDays', runOffsetDays);",
+									"}",
+									"",
 									"var startDate = new Date();",
-									"startDate.setDate(startDate.getDate() + 30);",
-									"var endDate = new Date();",
-									"endDate.setDate(endDate.getDate() + 35);",
+									"startDate.setDate(startDate.getDate() + Number(runOffsetDays));",
+									"var endDate = new Date(startDate);",
+									"endDate.setDate(endDate.getDate() + 5);",
 									"",
 									"pm.variables.set('startDate', startDate.toISOString().split('T')[0]);",
 									"pm.variables.set('endDate', endDate.toISOString().split('T')[0]);"
@@ -475,8 +499,14 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
+									"var runOffsetDays = pm.collectionVariables.get('runOffsetDays');",
+									"if (!runOffsetDays) {",
+									"    runOffsetDays = 120 + Math.floor(Math.random() * 2000);",
+									"    pm.collectionVariables.set('runOffsetDays', runOffsetDays);",
+									"}",
+									"",
 									"var startDate = new Date();",
-									"startDate.setDate(startDate.getDate() + 60);",
+									"startDate.setDate(startDate.getDate() + Number(runOffsetDays) + 40);",
 									"",
 									"pm.variables.set('startDate', startDate.toISOString().split('T')[0]);",
 									"pm.variables.set('endDate', startDate.toISOString().split('T')[0]);"
