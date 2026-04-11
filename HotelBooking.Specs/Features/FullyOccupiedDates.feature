@@ -33,6 +33,7 @@ Feature: Fully Occupied Dates
     And all dates from "Today+10" to "Today+20" should be in the result
 
   Scenario: Only dates where ALL rooms are booked appear in the result
+    # Today+1 has only Room 1 booked — not fully occupied (3 rooms)
     Given I query occupied dates from "Today+1" to "Today+3"
     When I request the fully occupied dates
     Then the result should contain exactly 0 dates

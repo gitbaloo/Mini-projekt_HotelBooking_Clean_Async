@@ -90,10 +90,6 @@ HotelBooking.Specs/
 | No bookings in system | 0 dates |
 | Start date after end date | Throws `ArgumentException` |
 
-### Readability of .feature files
-
-If you are using VS code it is highly recommended using the extension called 'Cucumber (Gherkin) Full Support' by Alexander Krechik.
-
 ---
 
 ## Data model used in Background tables

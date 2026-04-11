@@ -1,21 +1,16 @@
 using HotelBooking.Core;
-using Moq;
 
 namespace HotelBooking.Specs.Support
 {
     /// <summary>
     /// Shared test state injected into step definition classes via SpecFlow's DI.
-    /// Holds mock setup, the system under test, and captured results.
+    /// Uses fully self-contained in-memory repositories — no Moq, no real database.
     /// </summary>
     public class BookingTestContext
     {
-        // ── Mocks ─────────────────────────────────────────────────────────────
-        public Mock<IRepository<Booking>> MockBookingRepo { get; } = new();
-        public Mock<IRepository<Room>> MockRoomRepo { get; } = new();
-
         // ── Data ──────────────────────────────────────────────────────────────
-        public List<Room> Rooms { get; set; } = new();
-        public List<Booking> Bookings { get; set; } = new();
+        public List<Room> Rooms { get; set; } = [];
+        public List<Booking> Bookings { get; set; } = [];
 
         // ── System under test ─────────────────────────────────────────────────
         public IBookingManager BookingManager { get; private set; } = null!;
@@ -31,33 +26,30 @@ namespace HotelBooking.Specs.Support
         public DateTime OccupiedQueryEnd { get; set; }
 
         /// <summary>
-        /// Call once the Rooms and Bookings lists are populated to (re)build the SUT.
+        /// Builds the BookingManager backed by fresh in-memory repositories
+        /// seeded from the current Rooms and Bookings lists.
+        /// Call once both lists are populated.
         /// </summary>
         public void BuildBookingManager()
         {
-            MockRoomRepo
-                .Setup(r => r.GetAllAsync())
-                .ReturnsAsync(() => Rooms.ToList()); // lambda so later mutations are picked up
+            var bookingRepo = new BookingRepository(Bookings);
+            var roomRepo = new RoomRepository(Rooms);
 
-            MockBookingRepo
-                .Setup(r => r.GetAllAsync())
-                .ReturnsAsync(() => Bookings.ToList());
-
-            MockBookingRepo
-                .Setup(r => r.AddAsync(It.IsAny<Booking>()))
-                .Returns(Task.CompletedTask);
-
-            BookingManager = new BookingManager(MockBookingRepo.Object, MockRoomRepo.Object);
+            BookingManager = new BookingManager(bookingRepo, roomRepo);
         }
 
         // ── Date helper ───────────────────────────────────────────────────────
 
         /// <summary>
         /// Parses date tokens like "Today+2", "Today-1", "Today", or ISO dates.
+        /// Returns DateTime.MinValue for the token "NULL" (simulates a missing date).
         /// </summary>
         public static DateTime ParseDate(string token)
         {
             token = token.Trim();
+
+            if (token.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+                return DateTime.MinValue;
 
             if (token.StartsWith("Today+", StringComparison.OrdinalIgnoreCase))
                 return DateTime.Today.AddDays(int.Parse(token[6..]));

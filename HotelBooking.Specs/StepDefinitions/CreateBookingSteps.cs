@@ -10,16 +10,16 @@ namespace HotelBooking.Specs.StepDefinitions
     [Binding]
     public sealed class CreateBookingSteps
     {
-        private readonly BookingTestContext _ctx;
+        private readonly BookingTestContext _context;
 
-        public CreateBookingSteps(BookingTestContext ctx) => _ctx = ctx;
+        public CreateBookingSteps(BookingTestContext context) => _context = context;
 
         // ── Given ──────────────────────────────────────────────────────────────
 
         [Given(@"a customer wants to book from ""(.*)"" to ""(.*)""")]
         public void GivenACustomerWantsToBookFromTo(string startToken, string endToken)
         {
-            _ctx.LastBooking = new Booking
+            _context.LastBooking = new Booking
             {
                 StartDate = BookingTestContext.ParseDate(startToken),
                 EndDate = BookingTestContext.ParseDate(endToken),
@@ -28,8 +28,8 @@ namespace HotelBooking.Specs.StepDefinitions
 
             // If the SUT hasn't been built yet (e.g. "no rooms" scenario sets rooms
             // before calling this step), build it now.
-            if (_ctx.BookingManager == null)
-                _ctx.BuildBookingManager();
+            if (_context.BookingManager == null)
+                _context.BuildBookingManager();
         }
 
         // ── When ───────────────────────────────────────────────────────────────
@@ -39,11 +39,11 @@ namespace HotelBooking.Specs.StepDefinitions
         {
             try
             {
-                _ctx.CreateBookingResult = await _ctx.BookingManager.CreateBooking(_ctx.LastBooking!);
+                _context.CreateBookingResult = await _context.BookingManager.CreateBooking(_context.LastBooking!);
             }
             catch (Exception ex)
             {
-                _ctx.ThrownException = ex;
+                _context.ThrownException = ex;
             }
         }
 
@@ -52,43 +52,50 @@ namespace HotelBooking.Specs.StepDefinitions
         [Then(@"the booking should be created successfully")]
         public void ThenTheBookingShouldBeCreatedSuccessfully()
         {
-            Assert.Null(_ctx.ThrownException);
-            Assert.True(_ctx.CreateBookingResult,
+            Assert.Null(_context.ThrownException);
+            Assert.True(_context.CreateBookingResult,
                 "Expected CreateBooking to return true, but it returned false.");
         }
 
         [Then(@"the booking should not be created")]
         public void ThenTheBookingShouldNotBeCreated()
         {
-            Assert.Null(_ctx.ThrownException);
-            Assert.False(_ctx.CreateBookingResult,
+            // A booking is "not created" either when CreateBooking returns false,
+            // OR when invalid input causes an ArgumentException (e.g. BB-04: start date is today).
+            if (_context.ThrownException != null)
+            {
+                Assert.IsType<ArgumentException>(_context.ThrownException);
+                return;
+            }
+
+            Assert.False(_context.CreateBookingResult,
                 "Expected CreateBooking to return false, but it returned true.");
         }
 
         [Then(@"the booking should be marked as active")]
         public void ThenTheBookingShouldBeMarkedAsActive()
         {
-            Assert.True(_ctx.LastBooking!.IsActive,
+            Assert.True(_context.LastBooking!.IsActive,
                 "Expected the booking's IsActive flag to be true.");
         }
 
         [Then(@"the booking should not be marked as active")]
         public void ThenTheBookingShouldNotBeMarkedAsActive()
         {
-            Assert.False(_ctx.LastBooking!.IsActive,
+            Assert.False(_context.LastBooking!.IsActive,
                 "Expected the booking's IsActive flag to be false after rejection.");
         }
 
         [Then(@"the booking should be assigned a valid room")]
         public void ThenTheBookingShouldBeAssignedAValidRoom()
         {
-            Assert.Contains(_ctx.Rooms, r => r.Id == _ctx.LastBooking!.RoomId);
+            Assert.Contains(_context.Rooms, r => r.Id == _context.LastBooking!.RoomId);
 
             // The assigned room must not have any active booking that overlaps the new booking's period.
-            var overlaps = _ctx.Bookings.Where(b =>
+            var overlaps = _context.Bookings.Where(b =>
                 b.IsActive &&
-                b.RoomId == _ctx.LastBooking!.RoomId &&
-                !(b.EndDate < _ctx.LastBooking.StartDate || b.StartDate > _ctx.LastBooking.EndDate));
+                b.RoomId == _context.LastBooking!.RoomId &&
+                !(b.EndDate < _context.LastBooking.StartDate || b.StartDate > _context.LastBooking.EndDate));
 
             Assert.Empty(overlaps);
         }
@@ -97,7 +104,7 @@ namespace HotelBooking.Specs.StepDefinitions
         public void ThenNoRoomShouldBeAssignedToTheBooking()
         {
             // RoomId stays at its default (0) when CreateBooking returns false
-            Assert.Equal(0, _ctx.LastBooking!.RoomId);
+            Assert.Equal(0, _context.LastBooking!.RoomId);
         }
     }
 }
