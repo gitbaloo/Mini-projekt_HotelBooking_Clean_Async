@@ -16,17 +16,17 @@ namespace HotelBooking.Specs.Support
         public Task<Room> GetAsync(int id)
             => Task.FromResult(_store.First(r => r.Id == id));
 
-        public Task AddAsync(Room entity)
+        public Task AddAsync(Room room)
         {
-            entity.Id = _store.Count == 0 ? 1 : _store.Max(r => r.Id) + 1;
-            _store.Add(entity);
+            room.Id = _store.Count == 0 ? 1 : _store.Max(r => r.Id) + 1;
+            _store.Add(room);
             return Task.CompletedTask;
         }
 
-        public Task EditAsync(Room entity)
+        public Task EditAsync(Room room)
         {
-            var index = _store.FindIndex(r => r.Id == entity.Id);
-            if (index >= 0) _store[index] = entity;
+            var index = _store.FindIndex(r => r.Id == room.Id);
+            if (index >= 0) _store[index] = room;
             return Task.CompletedTask;
         }
 
