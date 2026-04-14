@@ -8,11 +8,9 @@ namespace HotelBooking.Specs.StepDefinitions
     /// Step definitions specific to the "Create Booking" feature.
     /// </summary>
     [Binding]
-    public sealed class CreateBookingSteps
+    public sealed class CreateBookingSteps(BookingTestContext context)
     {
-        private readonly BookingTestContext _context;
-
-        public CreateBookingSteps(BookingTestContext context) => _context = context;
+        private readonly BookingTestContext _context = context;
 
         // ── Given ──────────────────────────────────────────────────────────────
 

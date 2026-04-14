@@ -4,7 +4,7 @@ namespace HotelBooking.Specs.Support
 {
     /// <summary>
     /// Shared test state injected into step definition classes via SpecFlow's DI.
-    /// Uses fully self-contained in-memory repositories — no Moq, no real database.
+    /// Uses fully self-contained in-memory repositories
     /// </summary>
     public class BookingTestContext
     {

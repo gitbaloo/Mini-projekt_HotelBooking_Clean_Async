@@ -20,6 +20,7 @@ Feature: Create Booking
   # Happy path: booking created successfully
   # -----------------------------------------------------------------------
 
+  # Casper
   # BB-05
   Scenario: Booking is created on a single available day
     Given a customer wants to book from "Today+5" to "Today+5"
@@ -53,6 +54,7 @@ Feature: Create Booking
   # No-room path: booking rejected
   # -----------------------------------------------------------------------
 
+  # Johan
   # BB-04
    Scenario: Booking is rejected when start date is today
     Given a customer wants to book from "Today" to "Today+1"
@@ -61,6 +63,7 @@ Feature: Create Booking
     And the booking should not be marked as active
     And no room should be assigned to the booking
 
+  # Nikolaj
   # BB-08
   Scenario: Booking is rejected when all rooms are occupied
     Given a customer wants to book from "Today+10" to "Today+12"
@@ -85,6 +88,7 @@ Feature: Create Booking
   # Input validation: invalid dates throw an exception
   # -----------------------------------------------------------------------
   
+  # John
   # BB-01
   Scenario: Booking throws exception when start date is missing
     Given a customer has accidentally entered "NULL" by leaving out start date
