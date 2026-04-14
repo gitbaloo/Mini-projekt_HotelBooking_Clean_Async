@@ -63,7 +63,7 @@ Feature: Create Booking
 
   # BB-08
   Scenario: Booking is rejected when all rooms are occupied
-    Given a customer wants to book from "Today+10" to "Today+11"
+    Given a customer wants to book from "Today+10" to "Today+12"
     When the booking is submitted
     Then the booking should not be created
     And the booking should not be marked as active
